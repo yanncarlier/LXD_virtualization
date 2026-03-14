@@ -416,3 +416,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+bin.linux.lxd-convert.x86_64
+notes.md
+*notes.md
