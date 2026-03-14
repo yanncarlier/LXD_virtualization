@@ -47,10 +47,13 @@ sleep 30
 
 # ── 4. Push in-VM setup script ────────────────────────────────────────────────
 echo "[*] Pushing in-VM setup script..."
-lxc file push 02_vm_setup.sh "${VM_NAME}/root/02_vm_setup.sh"
-lxc exec "${VM_NAME}" -- chmod +x /root/02_vm_setup.sh
-lxc file push 03_openclaw_configure.sh "${VM_NAME}/root/03_openclaw_configure.sh"
-lxc exec "${VM_NAME}" -- chmod +x /root/03_openclaw_configure.sh
+lxc file push 02.0_vm_setup.sh "${VM_NAME}/root/02.0_vm_setup.sh"
+lxc file push 02.1_vm_setup.sh "${VM_NAME}/root/02.1_vm_setup.sh"
+lxc file push 03.0_openclaw_configure.sh "${VM_NAME}/root/03.0_openclaw_configure.sh"
+
+lxc exec "${VM_NAME}" -- chmod +x /root/02.0_vm_setup.sh
+lxc exec "${VM_NAME}" -- chmod +x /root/02.1_vm_setup.sh
+lxc exec "${VM_NAME}" -- chmod +x /root/03.0_openclaw_configure.sh
 
 # ── 5. Print connection info ──────────────────────────────────────────────────
 SPICE_SOCK="/var/snap/lxd/common/lxd/logs/${VM_NAME}/qemu.spice"
@@ -71,5 +74,5 @@ echo "  Shell:"
 echo "    lxc exec ${VM_NAME} -- bash"
 echo ""
 echo "  Then inside the VM:"
-echo "    bash /root/02_vm_setup.sh"
+echo "    bash /root/02.0_vm_setup.sh"
 echo ""

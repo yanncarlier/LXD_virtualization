@@ -12,7 +12,7 @@ VM_NAME="openclaw"
 IMAGE="ubuntu:25.10"
 CPUS=2
 RAM="4GB"
-DISK="10GB"
+DISK="25GB"
 
 echo "============================================="
 echo " OpenClaw LXD VM Setup — Step 1/2"

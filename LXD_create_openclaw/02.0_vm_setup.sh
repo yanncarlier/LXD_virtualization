@@ -166,7 +166,7 @@ echo ""
 echo " After reboot:"
 echo "  - Desktop auto-logins as 'openclaw'"
 echo "  - Connect via SPICE: remote-viewer spice://127.0.0.1:5900"
-echo "  - Then run: bash /root/03_openclaw_configure.sh"
+echo "  - Then run: bash /root/03.0_openclaw_configure.sh"
 echo ""
 sleep 5
 reboot
