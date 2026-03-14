@@ -419,3 +419,5 @@ FodyWeavers.xsd
 bin.linux.lxd-convert.x86_64
 notes.md
 *notes.md
+lxd-ui-192.168.3.16.pfx
+*openclaw.json
