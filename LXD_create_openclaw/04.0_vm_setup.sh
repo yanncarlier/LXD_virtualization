@@ -7,6 +7,10 @@
 
 set -euo pipefail
 
+APP_USER="openclaw"
+VM_NAME="ocvm01"
+
+
 echo "============================================="
 echo " OpenClaw VM — SSH & Firewall Setup"
 echo "============================================="
@@ -62,8 +66,10 @@ echo " SSH & Firewall setup complete!"
 echo "============================================="
 echo ""
 echo " You can now connect via SSH:"
-echo "  ssh openclaw@<VM_IP>"
-echo "  (Password: openclaw)"
+echo "  ssh ${APP_USER}@<VM_IP>"
+echo "  (Password: ${APP_USER})"
+echo ""
+echo "  ssh -L 18789:127.0.0.1:18789 ${APP_USER}@<VM_IP>"
 echo ""
 echo " Firewall status: $(ufw status | grep -E '(Status|22)')"
 echo ""

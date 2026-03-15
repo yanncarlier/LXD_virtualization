@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# 02_vm_setup.sh
+# 
 # Run this INSIDE the LXD VM (as root or with sudo)
 # Installs: XFCE desktop, Chrome, xdotool, scrot, Node.js, OpenClaw
 # =============================================================================
@@ -12,6 +12,9 @@ echo " OpenClaw VM — In-VM Setup Script"
 echo "============================================="
 
 export DEBIAN_FRONTEND=noninteractive
+
+APP_USER="openclaw"
+VM_NAME="ocvm01"
 
 # ── 1. Update system ──────────────────────────────────────────────────────────
 echo "[1/9] Updating system packages..."
@@ -107,28 +110,28 @@ npm install -g openclaw
 echo "OpenClaw version: $(openclaw --version 2>/dev/null || echo 'installed')"
 
 # ── 9. Create openclaw user with auto-login ───────────────────────────────────
-echo "[9/9] Setting up 'openclaw' user with auto-login..."
+echo "[9/9] Setting up '${APP_USER}' user with auto-login..."
 
 # Create dedicated user if not exists
-if ! id "openclaw" &>/dev/null; then
-  useradd -m -s /bin/bash -G sudo,audio,video,input openclaw
-  echo "openclaw:openclaw" | chpasswd
+if ! id "${APP_USER}" &>/dev/null; then
+  useradd -m -s /bin/bash -G sudo,audio,video,input "${APP_USER}"
+  echo "${APP_USER}:${APP_USER}" | chpasswd
 fi
 
 # Configure LightDM autologin
-cat > /etc/lightdm/lightdm.conf <<'EOF'
+cat > /etc/lightdm/lightdm.conf <<EOF
 [Seat:*]
-autologin-user=openclaw
+autologin-user=${APP_USER}
 autologin-user-timeout=0
 user-session=xfce
 greeter-session=lightdm-gtk-greeter
 EOF
 
 # Configure XFCE session for openclaw user
-mkdir -p /home/openclaw/.config/xfce4/xfconf/xfce-perchannel-xml
+mkdir -p /home/${APP_USER}/.config/xfce4/xfconf/xfce-perchannel-xml
 
 # Disable screensaver and power management (keeps desktop alive for automation)
-cat > /home/openclaw/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml <<'EOF'
+cat > /home/${APP_USER}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml <<'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-power-manager" version="1.0">
   <property name="xfce4-power-manager" type="empty">
@@ -141,7 +144,7 @@ cat > /home/openclaw/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manage
 EOF
 
 # Disable screensaver
-cat > /home/openclaw/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-screensaver.xml <<'EOF'
+cat > /home/${APP_USER}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-screensaver.xml <<'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-screensaver" version="1.0">
   <property name="saver" type="empty">
@@ -153,7 +156,7 @@ cat > /home/openclaw/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-screensaver.
 </channel>
 EOF
 
-chown -R openclaw:openclaw /home/openclaw/.config
+chown -R ${APP_USER}:${APP_USER} /home/${APP_USER}/.config
 
 
 
@@ -164,9 +167,9 @@ echo " Setup complete! Rebooting in 5 seconds..."
 echo "============================================="
 echo ""
 echo " After reboot:"
-echo "  - Desktop auto-logins as 'openclaw'"
+echo "  - Desktop auto-logins as '${APP_USER}'"
 echo "  - Connect via SPICE: remote-viewer spice://127.0.0.1:5900"
-echo "  - Then run: bash /root/03.0_openclaw_configure.sh"
 echo ""
+echo "  - Connect via lxc console ocvm01 --type=vga"
 sleep 5
 reboot

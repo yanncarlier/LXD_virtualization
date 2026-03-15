@@ -1,18 +1,18 @@
 #!/bin/bash
 # =============================================================================
-# 01_host_create_vm.sh
+# 
 # Run this on your UBUNTU HOST (not inside the VM)
-# Step 1 of 2: Creates and launches the LXD VM, then stops it cleanly
-#              so that 01.2_host_create_vm.sh can apply boot-time config.
+# 
+#              
 # =============================================================================
 
 set -euo pipefail
 
-VM_NAME="openclaw"
+VM_NAME="ocvm01"
 IMAGE="ubuntu:25.10"
 CPUS=2
 RAM="4GB"
-DISK="25GB"
+DISK="20GB"
 
 echo "============================================="
 echo " OpenClaw LXD VM Setup — Step 1/2"
@@ -43,6 +43,5 @@ lxc stop "${VM_NAME}"
 echo ""
 echo "============================================="
 echo " Step 1 complete. VM is stopped and ready."
-echo " Run next:  bash 01.2_host_config_and_start.sh"
 echo "============================================="
 echo ""

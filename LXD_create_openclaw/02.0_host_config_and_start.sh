@@ -1,22 +1,23 @@
 #!/bin/bash
 # =============================================================================
-# 01.2_host_config_and_start.sh
+# 
 # Run this on your UBUNTU HOST (not inside the VM)
-# Step 2 of 2: Applies boot-time config, starts the VM, pushes setup script.
+# 
 #
 # SPICE note: LXD automatically creates a SPICE unix socket — do NOT add
 # a -spice flag via raw.qemu or QEMU will fail with a duplicate -spice error.
 # Connect with:
-#   lxc console openclaw --type=vga
-#   remote-viewer spice+unix:///var/snap/lxd/common/lxd/logs/openclaw/qemu.spice
+#   lxc console ${STATUS} --type=vga
+#   remote-viewer spice+unix:///var/snap/lxd/common/lxd/logs/${STATUS}/qemu.spice
 # =============================================================================
 
 set -euo pipefail
 
-VM_NAME="openclaw"
+VM_NAME="ocvm01"
+VM_USER="root" # User to run the scripts inside the VM
 
 echo "============================================="
-echo " OpenClaw LXD VM Setup — Step 2/2"
+echo " OpenClaw LXD VM 02.0_host_config_and_start.sh "
 echo "============================================="
 
 # ── 1. Confirm VM exists and is stopped ───────────────────────────────────────
@@ -27,8 +28,11 @@ if [[ -z "${STATUS}" ]]; then
 fi
 if [[ "${STATUS}" != "STOPPED" ]]; then
   echo "[!] VM '${VM_NAME}' is not stopped (status: ${STATUS})."
-  echo "    Run: lxc stop ${VM_NAME}"
-  exit 1
+  echo "    Running: lxc stop ${VM_NAME}"
+  # ── Stop VM cleanly so step can apply boot-time config ───────────────────
+  echo "[*] Stopping VM cleanly for config phase..."
+  lxc stop "${VM_NAME}"
+  # exit 1
 fi
 
 # ── 2. Apply boot-time config ─────────────────────────────────────────────────
@@ -47,13 +51,14 @@ sleep 30
 
 # ── 4. Push in-VM setup script ────────────────────────────────────────────────
 echo "[*] Pushing in-VM setup script..."
-lxc file push 02.0_vm_setup.sh "${VM_NAME}/root/02.0_vm_setup.sh"
-lxc file push 02.1_vm_setup.sh "${VM_NAME}/root/02.1_vm_setup.sh"
-lxc file push 03.0_openclaw_configure.sh "${VM_NAME}/root/03.0_openclaw_configure.sh"
+lxc file push 03.0_vm_setup.sh "${VM_NAME}/${VM_USER}/03.0_vm_setup.sh"
+lxc file push 04.0_vm_setup.sh "${VM_NAME}/${VM_USER}/04.0_vm_setup.sh"
+lxc file push 05.0_openclaw_configure.sh "${VM_NAME}/${VM_USER}/05.0_openclaw_configure.sh"
+lxc file push 06.0_inject_computer_use_tools.sh "${VM_NAME}/${VM_USER}/06.0_inject_computer_use_tools.sh"
 
-lxc exec "${VM_NAME}" -- chmod +x /root/02.0_vm_setup.sh
-lxc exec "${VM_NAME}" -- chmod +x /root/02.1_vm_setup.sh
-lxc exec "${VM_NAME}" -- chmod +x /root/03.0_openclaw_configure.sh
+lxc exec "${VM_NAME}" -- chmod +x /${VM_USER}/03.0_vm_setup.sh
+lxc exec "${VM_NAME}" -- chmod +x /${VM_USER}/04.0_vm_setup.sh
+lxc exec "${VM_NAME}" -- chmod +x /${VM_USER}/05.0_openclaw_configure.sh
 
 # ── 5. Print connection info ──────────────────────────────────────────────────
 SPICE_SOCK="/var/snap/lxd/common/lxd/logs/${VM_NAME}/qemu.spice"
@@ -72,7 +77,4 @@ echo "    (install: sudo apt install virt-viewer)"
 echo ""
 echo "  Shell:"
 echo "    lxc exec ${VM_NAME} -- bash"
-echo ""
-echo "  Then inside the VM:"
-echo "    bash /root/02.0_vm_setup.sh"
 echo ""

@@ -1,13 +1,18 @@
 #!/bin/bash
 # =============================================================================
-# 03_openclaw_configure.sh
-# Run INSIDE the VM as the 'openclaw' user (after 02_vm_setup.sh + reboot)
+# 
+# Run INSIDE the VM 
 # Configures OpenClaw with computer-use capabilities
 # =============================================================================
 
 set -euo pipefail
 
-USER_HOME="/home/openclaw"
+
+APP_USER="openclaw"
+VM_NAME="ocvm01"
+
+
+USER_HOME="/home/${APP_USER}"
 OPENCLAW_DIR="${USER_HOME}/.openclaw"
 SKILLS_DIR="${OPENCLAW_DIR}/skills"
 
@@ -173,7 +178,7 @@ scrot /tmp/after_navigation.png
 Always set DISPLAY=:0 when launching GUI apps from scripts/cron:
 ```bash
 export DISPLAY=:0
-export XAUTHORITY=/home/openclaw/.Xauthority
+export XAUTHORITY=/home/${APP_USER}/.Xauthority
 ```
 SKILL_EOF
 
@@ -182,7 +187,7 @@ echo "[*] Computer-use skill installed."
 # ── 3. Install the browser automation skill ───────────────────────────────────
 echo "[*] Installing browser automation skill (Playwright)..."
 
-# Install Playwright in the openclaw user space
+# Install Playwright in the ${APP_USER} user space
 cd "${USER_HOME}"
 npm init -y 2>/dev/null || true
 npm install playwright
@@ -203,7 +208,7 @@ web interaction. More reliable than xdotool for web-specific tasks.
 ### Open page and take screenshot
 ```javascript
 // save as /tmp/browse.mjs and run with: node /tmp/browse.mjs
-import { chromium } from '/home/openclaw/node_modules/playwright/index.mjs';
+import { chromium } from '/home/${APP_USER}/node_modules/playwright/index.mjs';
 
 const browser = await chromium.launch({ headless: false });  // headless:false shows in SPICE
 const page = await browser.newPage();
@@ -214,7 +219,7 @@ await browser.close();
 
 ### Fill a form and submit
 ```javascript
-import { chromium } from '/home/openclaw/node_modules/playwright/index.mjs';
+import { chromium } from '/home/${APP_USER}/node_modules/playwright/index.mjs';
 
 const browser = await chromium.launch({ headless: false });
 const page = await browser.newPage();
@@ -230,7 +235,7 @@ await browser.close();
 
 ### Connect to already-open Chrome (remote debugging)
 ```javascript
-import { chromium } from '/home/openclaw/node_modules/playwright/index.mjs';
+import { chromium } from '/home/${APP_USER}/node_modules/playwright/index.mjs';
 
 // Requires Chrome started with --remote-debugging-port=9222
 const browser = await chromium.connectOverCDP('http://localhost:9222');
@@ -285,7 +290,7 @@ cat > "${USER_HOME}/computer_use_helper.sh" <<'HELPER_EOF'
 # Usage: ./computer_use_helper.sh [screenshot|position|click X Y|type TEXT]
 
 export DISPLAY=:0
-export XAUTHORITY=/home/openclaw/.Xauthority
+export XAUTHORITY=/home/${APP_USER}/.Xauthority
 
 case "$1" in
   screenshot)
@@ -336,7 +341,7 @@ HELPER_EOF
 chmod +x "${USER_HOME}/computer_use_helper.sh"
 
 # ── 6. Fix ownership ──────────────────────────────────────────────────────────
-chown -R openclaw:openclaw "${USER_HOME}"
+chown -R ${APP_USER}:${APP_USER} "${USER_HOME}"
 
 # ── Done ──────────────────────────────────────────────────────────────────────
 echo ""
