@@ -18,7 +18,7 @@ AGENT="main"
 USER_HOME="/home/${APP_USER}"
 HELPER_SCRIPT="${USER_HOME}/computer_use_helper.sh"
 OPENCLAW_BASE="${USER_HOME}/.openclaw"
-WORKSPACE="${OPENCLAW_BASE}/workspace-${AGENT}"
+WORKSPACE="${OPENCLAW_BASE}/workspace"
 TOOLS_FILE="${WORKSPACE}/TOOLS.md"
 
 TOOLS_SECTION="
