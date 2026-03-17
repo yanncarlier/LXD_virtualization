@@ -7,7 +7,7 @@
 │                   YOUR UBUNTU HOST                       │
 │                                                          │
 │   ┌─────────────────────────────────────────────────┐   │
-│   │          LXD VM  "openclaw"                      │   │
+│   │          LXD VM  "ocvm01"                        │   │
 │   │          Ubuntu 25.10 Desktop (questing)         │   │
 │   │                                                  │   │
 │   │  ┌──────────────┐   ┌─────────────────────────┐ │   │
@@ -26,7 +26,7 @@
 │   │  └───────────────────────────────────────────┘  │   │
 │   │                                                  │   │
 │   │  ┌───────────────────────────────────────────┐  │   │
-│   │  │  SPICE Server  (port 5900, localhost only) │  │   │
+│   │  │  SPICE unix socket (local only)            │  │   │
 │   │  │  QXL video + spice-vdagent                │  │   │
 │   │  └───────────────────────────────────────────┘  │   │
 │   └─────────────────────────────────────────────────┘   │
@@ -48,29 +48,38 @@
 
 ```bash
 sudo apt install lxd virt-viewer
-sudo lxd init --auto   # if not already done
+# 01.0_host_create_vm.sh will run `lxd init --auto` if needed
 ```
 
 ---
 
 ## Step-by-Step
 
-### Step 1 — Run on HOST
+### Step 1 — Run on HOST (create VM)
 ```bash
-chmod +x 01_host_create_vm.sh
-./01_host_create_vm.sh
+chmod +x 01.0_host_create_vm.sh
+./01.0_host_create_vm.sh
 ```
-Creates the VM, configures SPICE on port 5900, pushes the next script into the VM.
+Creates the VM and stops it for boot-time configuration.
 
 ---
 
-### Step 2 — Run INSIDE the VM
+### Step 2 — Run on HOST (configure + start VM, push scripts)
+```bash
+chmod +x 02.0_host_config_and_start.sh
+./02.0_host_config_and_start.sh
+```
+Applies boot config, starts the VM, and pushes the in-VM scripts.
+
+---
+
+### Step 3 — Run INSIDE the VM (base setup)
 ```bash
 # Option A: exec directly from host
-lxc exec openclaw -- bash /root/02_vm_setup.sh
+lxc exec ocvm01 -- bash /root/03.0_vm_setup.sh
 
 # Option B: connect via SPICE first, open terminal, then run
-bash /root/02_vm_setup.sh
+bash /root/03.0_vm_setup.sh
 ```
 
 Installs: XFCE + LightDM auto-login, SPICE guest agent, xdotool/wmctrl/scrot,
@@ -78,27 +87,53 @@ Google Chrome, Node.js LTS, pnpm, and OpenClaw. VM reboots automatically.
 
 ---
 
-### Step 3 — Connect via SPICE (from host)
+### Step 4 — Connect via SPICE (from host)
 ```bash
-remote-viewer spice://127.0.0.1:5900
+# Option A: VGA console (simplest)
+lxc console ocvm01 --type=vga
+
+# Option B: SPICE unix socket (virt-viewer / remote-viewer)
+remote-viewer spice+unix:///var/snap/lxd/common/lxd/logs/ocvm01/qemu.spice
 ```
 You will see the XFCE desktop auto-logged in as the `openclaw` user.
 
 ---
 
-### Step 4 — Configure OpenClaw (inside VM)
+### Step 5 — Configure OpenClaw (inside VM)
 ```bash
 # Option A: exec directly from host
-lxc exec openclaw -- bash /root/03_openclaw_configure.sh
+lxc exec ocvm01 -- bash /root/05.0_openclaw_configure.sh
 
 # Option B: connect via SPICE first, open terminal, then run
-bash /root/03_openclaw_configure.sh
+bash /root/05.0_openclaw_configure.sh
 ```
 Installs computer-use skill, Playwright browser skill, and the systemd user service.
 
 ---
 
-### Step 5 — Onboard OpenClaw
+### Step 6 — (Optional) SSH + Firewall hardening (inside VM)
+```bash
+# Option A: exec directly from host
+lxc exec ocvm01 -- bash /root/04.0_vm_setup.sh
+
+# Option B: connect via SPICE first, open terminal, then run
+bash /root/04.0_vm_setup.sh
+```
+
+---
+
+### Step 7 — (Optional) Inject computer-use helper docs into TOOLS.md
+```bash
+# Option A: exec directly from host
+lxc exec ocvm01 -- bash /root/06.0_inject_computer_use_tools.sh
+
+# Option B: connect via SPICE first, open terminal, then run
+bash /root/06.0_inject_computer_use_tools.sh
+```
+
+---
+
+### Step 8 — Onboard OpenClaw
 ```bash
 openclaw onboard
 ```
@@ -155,17 +190,17 @@ Works for ANY desktop app visible in the SPICE window.
 ## Useful Commands
 
 ```bash
-# Watch OpenClaw logs live
-lxc exec openclaw -- journalctl -u openclaw -f
+# Watch OpenClaw logs live (user service)
+lxc exec ocvm01 -- sudo -u openclaw -- journalctl --user -u openclaw -f
 
 # Shell as openclaw user
-lxc exec openclaw -- sudo -u openclaw bash
+lxc exec ocvm01 -- sudo -u openclaw bash
 
 # Restart OpenClaw
-lxc exec openclaw -- systemctl --user restart openclaw
+lxc exec ocvm01 -- sudo -u openclaw -- systemctl --user restart openclaw
 
 # Pause/resume VM
-lxc pause openclaw && lxc start openclaw
+lxc pause ocvm01 && lxc start ocvm01
 ```
 
 ---

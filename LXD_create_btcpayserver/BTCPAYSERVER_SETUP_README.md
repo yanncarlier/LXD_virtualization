@@ -42,7 +42,7 @@
 
 ```bash
 sudo apt install lxd
-sudo lxd init --auto   # if not already done
+# 01_host_create_vm_btcpay.sh runs `lxd init --auto` if needed
 ```
 
 ---
@@ -60,13 +60,13 @@ lxc delete btcpayserver 2>/dev/null || true
 
 ### Step 1 — Run on HOST
 ```bash
-chmod +x 01_host_create_vm.sh
-sudo ./01_host_create_vm.sh
+chmod +x 01_host_create_vm_btcpay.sh
+sudo ./01_host_create_vm_btcpay.sh
 ```
 
 Creates the VM with:
-- 60 GB disk, 4 CPU, 8 GB RAM
-- LXD NAT proxy forwarding ports 80, 443, 8333
+- 30 GB disk, 2 CPU, 4 GB RAM
+- LXD network forward for ports 80, 443, 8333 on `lxdbr0`
 - UFW bridge rules so the VM gets DHCP and internet
 
 ---
@@ -77,7 +77,7 @@ Creates the VM with:
 lxc exec btcpayserver -- bash /root/02_vm_setup.sh
 ```
 
-Installs: git, curl, unzip, nginx, certbot, UFW and all system dependencies.
+Installs: git, curl, unzip, UFW, fail2ban, and system dependencies.
 
 ---
 
@@ -90,7 +90,7 @@ Installs: git, curl, unzip, nginx, certbot, UFW and all system dependencies.
 | `BTCPAY_HOST` | `""` | Your domain for TLS e.g. `pay.example.com`. Leave blank to use IP + HTTP only. |
 | `NBITCOIN_NETWORK` | `mainnet` | Use `testnet` to test without real Bitcoin |
 | `LIGHTNING` | `""` | Set `lnd` or `clightning` to add Lightning. Leave blank to skip. |
-| `STORAGE_FRAGMENT` | `opt-save-storage` | Pruned node (~25 GB chain). Safe for 60 GB disk. |
+| `STORAGE_FRAGMENT` | `opt-save-storage-xxs` | Pruned node (~5 GB chain). Safe for 30 GB disk. |
 
 ```bash
 # Push from host and run:
@@ -142,8 +142,8 @@ docker logs generated_btcpayserver_1 -f
 docker exec generated_bitcoind_1 bitcoin-cli getblockchaininfo
 
 # Stop / start / restart all containers
-btcpay-stop.sh
-btcpay-start.sh
+btcpay-down.sh
+btcpay-up.sh
 btcpay-restart.sh
 
 # Update to latest BTCPayServer version
@@ -161,6 +161,7 @@ DNS A record must point to your server's public IP first. Then inside the VM:
 
 ```bash
 export BTCPAY_HOST="pay.yourdomain.com"
+export BTCPAYGEN_REVERSEPROXY="nginx"
 cd /opt/btcpayserver/btcpayserver-docker
 . ./btcpay-setup.sh -i
 ```
@@ -195,11 +196,11 @@ lxc config device add btcpayserver lightning proxy \
 |---|---|
 | Ubuntu OS | ~5 GB |
 | Docker + images | ~8 GB |
-| Bitcoin pruned chain (`opt-save-storage`) | ~25 GB |
+| Bitcoin pruned chain (`opt-save-storage-xxs`) | ~5 GB |
 | NBXplorer index | ~5–8 GB |
 | BTCPayServer data | ~2 GB |
-| **Total** | **~45–48 GB** |
-| **Headroom on 60 GB VM** | **~12–15 GB** |
+| **Total** | **~25–28 GB** |
+| **Headroom on 30 GB VM** | **~2–5 GB** |
 
 Monitor:
 ```bash
@@ -215,7 +216,7 @@ lxc exec btcpayserver -- docker system df
 |---|---|
 | VM has no IP after boot | `lxc exec btcpayserver -- networkctl renew enp5s0` |
 | No internet inside VM | On host: `ufw allow in on lxdbr0 && ufw route allow in on lxdbr0 && ufw route allow out on lxdbr0` |
-| `docker ps` shows no containers | Run `btcpay-start.sh` inside VM |
+| `docker ps` shows no containers | Run `btcpay-up.sh` inside VM |
 | nginx 502 Bad Gateway | Containers still starting — wait 2 min, check `docker ps` |
 | Bitcoin stuck at 0% | Normal — initial sync takes hours/days on mainnet |
 | Disk full warning | `docker system prune` to remove old images |
@@ -242,5 +243,5 @@ lxc exec btcpayserver -- docker ps
 
 # Hard reset — nuke and start over
 lxc stop btcpayserver --force && lxc delete btcpayserver
-sudo ./01_host_create_vm.sh
+sudo ./01_host_create_vm_btcpay.sh
 ```
