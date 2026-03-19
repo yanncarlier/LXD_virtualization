@@ -24,11 +24,11 @@ if ! lxc info &>/dev/null; then
 fi
 
 # ── 2. Delete existing VM if present ──────────────────────────────────────────
-if lxc info "${VM_NAME}" &>/dev/null; then
-  echo "[*] Removing existing VM '${VM_NAME}'..."
-  lxc stop "${VM_NAME}" --force 2>/dev/null || true
-  lxc delete "${VM_NAME}"
-fi
+# if lxc info "${VM_NAME}" &>/dev/null; then
+#   echo "[*] Removing existing VM '${VM_NAME}'..."
+#   lxc stop "${VM_NAME}" --force 2>/dev/null || true
+#   lxc delete "${VM_NAME}"
+# fi
 
 # ── 3. Launch VM ──────────────────────────────────────────────────────────────
 echo "[*] Launching VM '${VM_NAME}' from ${IMAGE}..."
