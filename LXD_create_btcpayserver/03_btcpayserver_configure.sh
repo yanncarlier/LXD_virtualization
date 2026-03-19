@@ -18,7 +18,7 @@ echo "============================================="
 BTCPAY_HOST=""               # e.g. "pay.yourdomain.com" — leave blank for HTTP/IP
 NBITCOIN_NETWORK="mainnet"   # "mainnet" | "testnet" | "regtest"
 LIGHTNING=""                 # "lnd" | "clightning" | "" (blank = no Lightning)
-STORAGE_FRAGMENT="opt-save-storage-xxs"  # pruned node ~25 GB — safe for 60 GB disk
+STORAGE_FRAGMENT="opt-save-storage-xxs"  # pruned node 
 
 # opt-save-storage: Prunes to 100 GB (~1 year of blocks).
 # opt-save-storage-s: Prunes to 50 GB (~6 months of blocks).
