@@ -8,6 +8,8 @@
 
 set -euo pipefail
 
+VM_NAME="vm_name"
+
 echo "============================================="
 echo " BTCPayServer VM — In-VM Setup Script"
 echo "============================================="
@@ -54,6 +56,6 @@ echo "============================================="
 echo " VM base setup complete!"
 echo "============================================="
 echo ""
-echo " Now run:"
-echo "   lxc exec ${VM_NAME} -- bash /root/03_btcpayserver_configure.sh"
+echo "  Step 3 — run inside VM:"
+echo "    lxc exec ${VM_NAME} -- bash /root/03_btcpayserver_configure.sh"
 echo ""

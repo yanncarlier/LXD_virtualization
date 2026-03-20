@@ -10,6 +10,8 @@
 
 set -euo pipefail
 
+VM_NAME="vm_name"
+
 echo "============================================="
 echo " BTCPayServer — Docker Deployment"
 echo "============================================="

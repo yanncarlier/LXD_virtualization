@@ -24,11 +24,11 @@ if ! lxc info &>/dev/null; then
 fi
 
 # ── 2. Delete existing VM if present ──────────────────────────────────────────
-# if lxc info "${VM_NAME}" &>/dev/null; then
-#   echo "[*] Removing existing VM '${VM_NAME}'..."
-#   lxc stop "${VM_NAME}" --force 2>/dev/null || true
-#   lxc delete "${VM_NAME}"
-# fi
+if lxc info "${VM_NAME}" &>/dev/null; then
+  echo "[*] Removing existing VM '${VM_NAME}'..."
+  lxc stop "${VM_NAME}" --force 2>/dev/null || true
+  lxc delete "${VM_NAME}"
+fi
 
 # ── 3. Launch VM ──────────────────────────────────────────────────────────────
 echo "[*] Launching VM '${VM_NAME}' from ${IMAGE}..."
@@ -50,6 +50,7 @@ echo "[*] Configuring UFW bridge rules..."
 ufw allow in on lxdbr0        2>/dev/null || true
 ufw route allow in on lxdbr0  2>/dev/null || true
 ufw route allow out on lxdbr0 2>/dev/null || true
+lxc network set lxdbr0 ipv4.nat true
 
 # ── 5. Wait for VM to get a DHCP IP ───────────────────────────────────────────
 echo "[*] Waiting for VM to get an IP (up to 90s)..."
@@ -99,7 +100,3 @@ echo "  VM IP : ${VM_IP}"
 echo ""
 echo "  Step 2 — run inside VM:"
 echo "    lxc exec ${VM_NAME} -- bash /root/02_vm_setup.sh"
-echo ""
-echo "  Step 3 — run inside VM:"
-echo "    lxc exec ${VM_NAME} -- bash /root/03_btcpayserver_configure.sh"
-echo ""
