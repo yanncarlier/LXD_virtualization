@@ -46,11 +46,7 @@ echo "[*] Waiting for VM to boot (30s)..."
 sleep 30
 
 # ── 4. UFW — allow LXD bridge traffic (required for VM DHCP + internet) ───────
-echo "[*] Configuring UFW bridge rules..."
-ufw allow in on lxdbr0        2>/dev/null || true
-ufw route allow in on lxdbr0  2>/dev/null || true
-ufw route allow out on lxdbr0 2>/dev/null || true
-lxc network set lxdbr0 ipv4.nat true
+# moved to ../LXD_network.sh file
 
 # ── 5. Wait for VM to get a DHCP IP ───────────────────────────────────────────
 echo "[*] Waiting for VM to get an IP (up to 90s)..."
