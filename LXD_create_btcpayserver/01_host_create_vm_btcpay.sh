@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-VM_NAME="btcpayserver"
+VM_NAME="btcpayvm01"
 IMAGE="ubuntu:25.10"
 CPUS=2
 RAM="4GB"
@@ -34,6 +34,7 @@ fi
 echo "[*] Launching VM '${VM_NAME}' from ${IMAGE}..."
 lxc launch "${IMAGE}" "${VM_NAME}" \
   --vm \
+  --storage default \
   --config limits.cpu="${CPUS}" \
   --config limits.memory="${RAM}" \
   --device root,size="${DISK}"
