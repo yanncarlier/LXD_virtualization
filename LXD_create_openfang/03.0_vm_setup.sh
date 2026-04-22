@@ -74,23 +74,6 @@ apt-get install -y -qq /tmp/chrome.deb || \
 
 rm /tmp/chrome.deb
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # ── 3. Create dedicated openfang user ─────────────────────────────────────────
 echo "[3/5] Creating dedicated '${APP_USER}' user..."
 if ! id "${APP_USER}" &>/dev/null; then

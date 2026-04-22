@@ -90,3 +90,9 @@ lxc profile show default
 ## Notes
 
 For most Ubuntu systems, the snap package is the recommended and supported install method for LXD. If you run clusters, consider snap cohort pinning and update management in the official documentation.
+
+
+ssh -L 4200:127.0.0.1:4200 openfang@{$VMIP}
+
+~/.openfang/bin/openfang start
+
